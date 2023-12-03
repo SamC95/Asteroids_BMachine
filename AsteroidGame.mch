@@ -73,11 +73,16 @@ OPERATIONS
     PRE
 	power : NAT & power = 100
     THEN
- 	HorizontalPosition := 1;
-	VerticalPosition := 1;
-	SpaceshipPosition := (HorizontalPosition, VerticalPosition);
-	RouteTaken := [(1,1)];
-        	PowerAmount := power;
+ 	HorizontalPosition := 1
+ 	||
+	VerticalPosition := 1
+	||
+	SpaceshipPosition := (HorizontalPosition, VerticalPosition)
+	||
+	RouteTaken := [(1,1)]
+	||
+   PowerAmount := power
+   ||
 	GameActive := 1
     END;
 
