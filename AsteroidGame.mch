@@ -273,6 +273,10 @@ OPERATIONS
 	report := ASTEROID_PRESENT
 	
 	ELSE
+	HorizontalPosition := prj1(newposition)
+	||
+	VerticalPosition := prj2(newposition)
+	||
 	SpaceshipPosition := newposition
 	||
 	PowerAmount := PowerAmount - WARP_POWERCOST
@@ -289,6 +293,7 @@ OPERATIONS
 		Current position on the grid (e.g., 6|->4 if the spaceship was on the star base)
 		The amount of collisions with asteroids during the current game
 	*/
+
     status, power, location, collisions <-- MissionStatus = 
     PRE
 	GameActive = 1
