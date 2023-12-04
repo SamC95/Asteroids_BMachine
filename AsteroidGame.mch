@@ -1,5 +1,5 @@
 /* AsteroidGame
- * Author: Sam Clark
+ * Author: Sam Clark, w1854525
  * Creation date: 01/12/2023
  */
 MACHINE AsteroidGame
@@ -7,7 +7,7 @@ MACHINE AsteroidGame
 SETS
     Direction = {MoveUp, MoveDown, MoveLeft, MoveRight};
     Status = {WON, LOST, NOT_OVER};
-    MissionError = {SUCCESSFUL_MOVE, OUT_OF_BOUNDS, ASTEROID_HIT, INSUFFICIENT_POWER}
+    MissionError = {SUCCESSFUL_MOVE, SUCCESSFUL_WARP, OUT_OF_BOUNDS, ASTEROID_HIT, ASTEROID_PRESENT, INSUFFICIENT_POWER}
     
 CONSTANTS
     GRID,
@@ -34,23 +34,25 @@ PROPERTIES
     CRASH_POWERCOST = 10
     
 VARIABLES
-    SpaceshipPosition, Asteroids, AsteroidCollisions, PowerAmount, 
-    HorizontalPosition, VerticalPosition, RouteTaken, RouteCounter, GameActive
+    SpaceshipPosition, NextPosition, Asteroids, AsteroidCollisions, PowerAmount, 
+    HorizontalPosition, VerticalPosition, RouteTaken, GameActive
     
 INVARIANT
     SpaceshipPosition : GRID
+    & NextPosition : GRID
     & Asteroids <: ASTEROID_POSITIONS
     & AsteroidCollisions : NAT
     & PowerAmount : NAT
     & HorizontalPosition : NAT1 & HorizontalPosition <= 12
     & VerticalPosition : NAT1 & VerticalPosition <= 7 
     & RouteTaken : seq(GRID)
-    & RouteCounter : NAT1
     & GameActive : NAT & GameActive <= 1
 
     
 INITIALISATION
     SpaceshipPosition := HOME_BASE
+    ||
+    NextPosition := HOME_BASE
     ||
     Asteroids := ASTEROID_POSITIONS
     ||
@@ -64,11 +66,13 @@ INITIALISATION
     ||
     RouteTaken := [(1, 1)]
     ||
-    RouteCounter := 1
-    ||
     GameActive := 0
     
 OPERATIONS
+
+	/*Starts a new game on first run of the program, or resets the program back to its initial state. 
+	 GameActive ensures that the checks for movement, mission status and route are hidden until a 
+	 new game has been started at least once */
     NewGame(power) = 
     PRE
 	power : NAT & power = 100
@@ -77,28 +81,52 @@ OPERATIONS
  	||
 	VerticalPosition := 1
 	||
-	SpaceshipPosition := (HorizontalPosition, VerticalPosition)
+	SpaceshipPosition := HOME_BASE
+	||
+	NextPosition := HOME_BASE
 	||
 	RouteTaken := [(1,1)]
 	||
-   PowerAmount := power
-   ||
+	AsteroidCollisions := 0
+	||
+   	PowerAmount := power
+  	||
 	GameActive := 1
     END;
 
+	/* Checks for possible outcomes of movement (i.e., asteroid hit, moving out of bounds or a valid movement)
+	   and performs the appropriate action and informs the user of the outcome */
     report <-- NormalMove(dir) = 
     PRE
 	dir : Direction
 	& SpaceshipPosition = (HorizontalPosition, VerticalPosition)
+	& SpaceshipPosition /: Asteroids
 	& GameActive = 1
     THEN
 	IF 
 	dir : {MoveUp}
 	THEN
+	NextPosition := (HorizontalPosition, VerticalPosition + 1);
 		IF
+		NextPosition : Asteroids
+		THEN
+		report := ASTEROID_HIT
+		||
+		PowerAmount := PowerAmount - CRASH_POWERCOST
+		||
+		AsteroidCollisions := AsteroidCollisions + 1
+
+		ELSIF
 		PowerAmount < 5
 		THEN
 		report := INSUFFICIENT_POWER
+
+		ELSIF
+		VerticalPosition = 7
+		THEN
+		report := OUT_OF_BOUNDS
+		||
+		NextPosition := (HorizontalPosition, VerticalPosition)
 
 		ELSE
 		VerticalPosition := VerticalPosition + 1
@@ -107,14 +135,25 @@ OPERATIONS
 		||
 		PowerAmount := PowerAmount - NORMAL_POWERCOST
 		||
-		RouteTaken := RouteTaken \/ [(HorizontalPosition , VerticalPosition + 1)]
+		RouteTaken := RouteTaken ^ [(HorizontalPosition , VerticalPosition + 1)]
 		||
 		report := SUCCESSFUL_MOVE
 		END
+
 	ELSIF
 	dir: {MoveDown}
 	THEN
+	NextPosition := (HorizontalPosition, VerticalPosition - 1);
 		IF
+		NextPosition : Asteroids
+		THEN
+		report := ASTEROID_HIT
+		||
+		PowerAmount := PowerAmount - CRASH_POWERCOST
+		||
+		AsteroidCollisions := AsteroidCollisions + 1
+
+		ELSIF
 		PowerAmount < 5
 		THEN
 		report := INSUFFICIENT_POWER
@@ -123,6 +162,8 @@ OPERATIONS
 		VerticalPosition = 1
 		THEN
 		report := OUT_OF_BOUNDS
+		||
+		NextPosition := (HorizontalPosition, VerticalPosition)
 
 		ELSE
 		VerticalPosition := VerticalPosition - 1
@@ -131,19 +172,25 @@ OPERATIONS
 		||
 		PowerAmount := PowerAmount - NORMAL_POWERCOST
 		||
-		RouteTaken := RouteTaken \/ [(HorizontalPosition , VerticalPosition - 1)]
+		RouteTaken := RouteTaken ^ [(HorizontalPosition , VerticalPosition - 1)]
 		||
 		report := SUCCESSFUL_MOVE
 		END
+
 	ELSIF
 	dir: {MoveLeft}
 	THEN	
-		//IF
-		//nextPos : Asteroids
-		//THEN
-		//report := ASTEROID_HIT
-
+	NextPosition := (HorizontalPosition -  1, VerticalPosition);
 		IF
+		NextPosition : Asteroids
+		THEN
+		report := ASTEROID_HIT
+		||
+		PowerAmount := PowerAmount - CRASH_POWERCOST
+		||
+		AsteroidCollisions := AsteroidCollisions + 1
+
+		ELSIF
 		PowerAmount < 5
 		THEN
 		report := INSUFFICIENT_POWER
@@ -152,6 +199,8 @@ OPERATIONS
 		HorizontalPosition = 1
 		THEN
 		report := OUT_OF_BOUNDS
+		||
+		NextPosition := (HorizontalPosition, VerticalPosition)
 
 		ELSE
 		HorizontalPosition := HorizontalPosition - 1
@@ -160,16 +209,25 @@ OPERATIONS
 		||
 		PowerAmount := PowerAmount - NORMAL_POWERCOST	
 		||
-		RouteTaken := RouteTaken \/ [(HorizontalPosition - 1, VerticalPosition)]
+		RouteTaken := RouteTaken ^ [(HorizontalPosition - 1, VerticalPosition)]
 		||
 		report := SUCCESSFUL_MOVE
-		
-	END
+		END
 		
 	ELSIF
 	dir : {MoveRight}
 	THEN
+	NextPosition := (HorizontalPosition + 1, VerticalPosition);
 		IF
+		NextPosition : Asteroids
+		THEN
+		report := ASTEROID_HIT
+		||
+		PowerAmount := PowerAmount - CRASH_POWERCOST
+		||
+		AsteroidCollisions := AsteroidCollisions + 1
+
+		ELSIF
 		PowerAmount < 5
 		THEN
 		report := INSUFFICIENT_POWER
@@ -178,6 +236,8 @@ OPERATIONS
 		HorizontalPosition = 12
 		THEN
 		report := OUT_OF_BOUNDS
+		||
+		NextPosition := (HorizontalPosition, VerticalPosition)
 
 		ELSE
 		HorizontalPosition := HorizontalPosition + 1
@@ -186,13 +246,49 @@ OPERATIONS
 		||
 		PowerAmount := PowerAmount - NORMAL_POWERCOST
 		||
-		RouteTaken := RouteTaken \/ [(HorizontalPosition + 1, VerticalPosition)]
+		RouteTaken := RouteTaken ^ [(HorizontalPosition + 1, VerticalPosition)]
 		||
 		report := SUCCESSFUL_MOVE
 		END	
 	END
     END;
 
+	/* Allows for warping to any position within the grid, as long as it doesn't have an asteroid on it, 
+	uses appropriate power cost upon movement */
+    report <-- WarpDrive(newposition) =
+    PRE
+	SpaceshipPosition = (HorizontalPosition, VerticalPosition)
+	& SpaceshipPosition /: Asteroids
+	& GameActive = 1
+	& newposition : GRID
+    THEN
+	IF
+	PowerAmount < 20
+	THEN
+	report := INSUFFICIENT_POWER
+
+	ELSIF
+	newposition : Asteroids
+	THEN
+	report := ASTEROID_PRESENT
+	
+	ELSE
+	SpaceshipPosition := newposition
+	||
+	PowerAmount := PowerAmount - WARP_POWERCOST
+	||
+	RouteTaken := RouteTaken ^ [newposition]
+	||
+	report := SUCCESSFUL_WARP
+	END
+    END;
+
+	/* An enquiry operation that shows the current mission status in the order of:
+		Current status of the game (Won, Lost or Not Over)
+		Current levels of power remaining
+		Current position on the grid (e.g., 6|->4 if the spaceship was on the star base)
+		The amount of collisions with asteroids during the current game
+	*/
     status, power, location, collisions <-- MissionStatus = 
     PRE
 	GameActive = 1
@@ -207,6 +303,7 @@ OPERATIONS
 		power := PowerAmount
 		||
 		collisions := AsteroidCollisions
+
 	ELSIF
 		PowerAmount < 5
 	THEN
@@ -217,6 +314,7 @@ OPERATIONS
 		power := PowerAmount
 		||
 		collisions := AsteroidCollisions
+
 	ELSE
 		status := NOT_OVER	
 		||
@@ -226,7 +324,14 @@ OPERATIONS
 		||
 		collisions := AsteroidCollisions
 	END
+      END;
 
-    END
+	/* Enquiry operation that shows the route that the ship took in order, 
+	   includes duplicates if the user returned to an already visited position */
+   route <-- RegionsVisited = 
+	PRE
+		GameActive = 1
+	THEN
+		route := RouteTaken
+	END
 END
-
