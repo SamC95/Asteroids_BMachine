@@ -1,6 +1,7 @@
 /* AsteroidGame
  * Author: Sam Clark, w1854525
  * Creation date: 01/12/2023
+ * Last Updated: 04/12/2023
  */
 MACHINE AsteroidGame
     
@@ -47,8 +48,7 @@ INVARIANT
     & VerticalPosition : NAT1 & VerticalPosition <= 7 
     & RouteTaken : seq(GRID)
     & GameActive : NAT & GameActive <= 1
-
-    
+  
 INITIALISATION
     SpaceshipPosition := HOME_BASE
     ||
@@ -293,7 +293,6 @@ OPERATIONS
 		Current position on the grid (e.g., 6|->4 if the spaceship was on the star base)
 		The amount of collisions with asteroids during the current game
 	*/
-
     status, power, location, collisions <-- MissionStatus = 
     PRE
 	GameActive = 1
