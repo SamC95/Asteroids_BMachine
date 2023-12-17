@@ -1,7 +1,7 @@
 /* AsteroidGame
  * Author: Sam Clark, w1854525
  * Creation date: 01/12/2023
- * Last Updated: 04/12/2023
+ * Last Updated: 17/12/2023
  */
 MACHINE AsteroidGame
     
@@ -17,7 +17,8 @@ CONSTANTS
     ASTEROID_POSITIONS,
     NORMAL_POWERCOST,
     WARP_POWERCOST,
-    CRASH_POWERCOST
+    CRASH_POWERCOST,
+    POWERVALUES
     
 PROPERTIES
     GRID = (1..12) * (1..7)
@@ -33,6 +34,8 @@ PROPERTIES
     WARP_POWERCOST = 20
     &
     CRASH_POWERCOST = 10
+    &
+    POWERVALUES = {(100), (125), (150), (175), (200)}
     
 VARIABLES
     SpaceshipPosition, NextPosition, Asteroids, AsteroidCollisions, PowerAmount, 
@@ -75,7 +78,7 @@ OPERATIONS
 	 new game has been started at least once */
     NewGame(power) = 
     PRE
-	power : NAT & power = 100
+	power : NAT & power : POWERVALUES
     THEN
  	HorizontalPosition := 1
  	||
