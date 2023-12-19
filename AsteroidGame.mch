@@ -1,7 +1,7 @@
 /* AsteroidGame
  * Author: Sam Clark, w1854525
  * Creation date: 01/12/2023
- * Last Updated: 17/12/2023
+ * Last Updated: 19/12/2023
  */
 MACHINE AsteroidGame
     
@@ -274,6 +274,8 @@ OPERATIONS
 	newposition : Asteroids
 	THEN
 	report := ASTEROID_PRESENT
+	||
+	PowerAmount := PowerAmount - WARP_POWERCOST
 	
 	ELSE
 	HorizontalPosition := prj1(newposition)
