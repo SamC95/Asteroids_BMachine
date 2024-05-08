@@ -2,18 +2,19 @@
 ## Asteroids Game
 
 By [Sam Clark](https://github.com/SamC95)
+
 This project was coursework for my third year module: Formal Methods -- at the University of Westminster
 
 ## Contents
-* [Project Brief]()
-* [Approach]()
-* [Technologies]()
-* [Project Diagrams]()
-* [Responsibilities]()
-* [Key Learnings]()
-* [Achievements]()
-* [Challenges]()
-* [Conclusions]()
+* [Project Brief](https://github.com/SamC95/Asteroids_BMachine/tree/main#project-brief)
+* [Approach](https://github.com/SamC95/Asteroids_BMachine/tree/main#approach)
+* [Technologies](https://github.com/SamC95/Asteroids_BMachine/tree/main#technologies)
+* [Project Diagrams](https://github.com/SamC95/Asteroids_BMachine/tree/main#project-diagrams)
+* [Implementation](https://github.com/SamC95/Asteroids_BMachine/tree/main#implementation)
+* [Key Learnings](https://github.com/SamC95/Asteroids_BMachine/tree/main#key-learnings)
+* [Achievements](https://github.com/SamC95/Asteroids_BMachine/tree/main#achievements)
+* [Challenges](https://github.com/SamC95/Asteroids_BMachine/tree/main#challenges)
+* [Conclusions](https://github.com/SamC95/Asteroids_BMachine/tree/main#conclusions)
 
 ## Project Brief
 * Develop a B specification of a very simple version of the old Asteroids arcade game, using the B tools Atelier B & ProB
