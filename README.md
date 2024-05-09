@@ -108,7 +108,7 @@ report <-- WarpDrive(newposition) =
 ## Achievements
 
 * Was able to implement the program functionality without the use of online resources like documentation, as there was very little available for the software.
-* Effectively followed the brief requirements in terms of game logic, whilst ensuring that the invariant conditions are not broken.
+* Effectively followed the project brief requirements in terms of game logic, whilst ensuring that the invariant conditions are not broken.
 
 ## Challenges
 
